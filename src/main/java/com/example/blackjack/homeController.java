@@ -18,19 +18,16 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 // import SimpMessagingTemplate
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.example.blackjack.Player.Status;
 
-import reactor.core.publisher.Flux;
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.Statement;
-import java.time.Duration;
 
 import java.util.ArrayList;
 
@@ -195,7 +192,7 @@ public class homeController {
     @GetMapping(value = "/getTable", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter getTable(String id, OAuth2AuthenticationToken identifyer) throws IOException{
         SseEmitter emitter = new SseEmitter();
-        String sub = identifyer.getPrincipal().getAttributes().get("sub").toString();
+        // String sub = identifyer.getPrincipal().getAttributes().get("sub").toString();
 
         for (int i = 0; i < rooms.size(); i++) {
 
