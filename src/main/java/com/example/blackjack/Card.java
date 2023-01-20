@@ -91,7 +91,7 @@ class Card {
         } else if (rank == 1) {
             return "ace_of_" + suit;
         } else {
-            return rank + " of " + suit;
+            return rank + "_of_" + suit;
         }
     }
 
