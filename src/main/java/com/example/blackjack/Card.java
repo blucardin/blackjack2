@@ -10,7 +10,6 @@
 
 package com.example.blackjack;
 
-
 import java.util.Arrays;
 
 class Card {
