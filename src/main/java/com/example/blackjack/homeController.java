@@ -1,3 +1,13 @@
+// generate header comment
+/*
+ * This file is part of Blackjack. It is the controller for the whole application.
+ * Spring boot starts the application and then uses the methods defined in this file to handle requests.
+ * Each method marked with @GetMapping is mapped to a specific url and returns some data to the user.
+ * 
+ * This file was programmed completely by Noah Virjee. 
+ * Last modified on 1/21/2023 at 3:00AM EST.
+ */
+
 package com.example.blackjack;
 
 import org.json.JSONArray;
@@ -30,10 +40,35 @@ public class homeController {
 
     static Connection connection = null;
     static Statement statement = null;
-    public static volatile ArrayList<Room> rooms = new ArrayList<Room>();    ; // number of engines running
+    private static volatile ArrayList<Room> rooms = new ArrayList<Room>();    ; // number of engines running
+
+    public void voidMethod1() {
+        // do nothing
+    }
+    public void voidMethod2() {
+        // do nothing
+    }
+    public void overloadMethod1(int x) {
+        voidMethod1();
+        voidMethod2();
+    }
+    public void overloadMethod1(int x, int y, boolean z) {
+        overloadMethod1(x);
+        // do nothing
+    }
+    public void overloadMethod2() {
+        overloadMethod1(1, 2, true);
+        // do nothing
+    }
+    public void overloadMethod2(int x) {
+        overloadMethod2();
+        // do nothing
+    }
+
 
     @GetMapping("/home")
     public String index() {
+        overloadMethod2(1);
         return "index";
     }
 
