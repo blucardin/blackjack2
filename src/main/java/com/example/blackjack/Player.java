@@ -15,7 +15,7 @@ import java.util.ArrayList;
 public class Player {
     enum Status{STOOD, BUST, PLAYING};
     private ArrayList<Card> hand = new ArrayList<>();
-    private int bet;
+    private int bet = 0;
     private String name;
     private String username;
     private Status status = Status.PLAYING;
