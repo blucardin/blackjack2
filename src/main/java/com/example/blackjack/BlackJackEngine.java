@@ -133,7 +133,15 @@ public class BlackJackEngine {
      * Uses only one deck
      */
     public Card[][] initializeGame() {
-        generateDeck();
+        Random numGenerator = new Random();
+
+        int randNumber = numGenerator.nextInt(1, 9);
+
+        if (randNumber == 1) {
+            generateDeck();
+        } else {
+            generateDeck(randNumber);
+        }
 
         Card[][] listOfCards = new Card[2][players.size()];
         Card[] cards = dealCard(players.size()*2);

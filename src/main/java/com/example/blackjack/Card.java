@@ -82,18 +82,17 @@ class Card {
      * @return the name of the card
      */
     public String getName() {
-        Map<Integer, String> numbersInWords = Map.of(2, "Two", 3, "Three", 4, "Four", 5, "Five", 6, "Six", 7, "Seven", 8, "Eight", 9, "Nine", 10, "Ten");
-
+        
         if (rank == 11) {
-            return "Jack of " + suit;
+            return "jack_of_" + suit + "2";
         } else if (rank == 12) {
-            return "Queen of " + suit; 
+            return "queen_of_" + suit + "2"; 
         } else if (rank == 13) {
-            return "King of " + suit;
+            return "king_of_" + suit + "2";
         } else if (rank == 1) {
-            return "Ace of " + suit;
+            return "ace_of_" + suit;
         } else {
-            return numbersInWords.get(rank) + " of " + suit;
+            return rank + " of " + suit;
         }
     }
 
