@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 public class BlackJackEngine {
-    private ArrayList<Player> players = new ArrayList<>(Arrays.asList(new Player("Dealer", "Dealer", 0)));
+    private ArrayList<Player> players = new ArrayList<>(Arrays.asList(new Player("Dealer", "Dealer")));
     private ArrayList<Card> deck = new ArrayList<>();
 
     /**
@@ -128,7 +128,7 @@ public class BlackJackEngine {
 
     /**
      * Sets the first two hands of each player in the game and returns all the cards dealt.
-     * Uses only one deck
+     * @return the list of cards that the were dealt
      */
     public Card[][] initializeGame() {
         Random numGenerator = new Random();
@@ -162,36 +162,6 @@ public class BlackJackEngine {
 
         return listOfCards;
     }
-
-    /**
-     * Sets the first two hands of each player in the game and returns all the cards dealt. 
-     * Uses a non standard card deck with at least 2 regular card decks in it
-     */
-    public Card[][] initializeGame(int numDecks) {
-        generateDeck(numDecks);
-
-        Card[][] listOfCards = new Card[2][players.size()];
-        Card[] cards = dealCard(players.size()*2);
-
-        // Gives all players their first two hands
-        for (int j = 0; j < players.size(); j++) {
-            for (int i = 0; i < 2; i++) {    
-                
-                int k = 0;
-                if (i == 0) {
-                    k = j;
-                } else {
-                    k = j + players.size();
-                }
-        
-                listOfCards[i][j] = cards[k];
-                players.get(j).getHand().add(cards[k]);
-            }
-        }
-
-        return listOfCards;
-    }
-
 
     /**
      * Plays the dealers turn

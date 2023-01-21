@@ -22,13 +22,25 @@ public class Player {
     
 
     /**
-     * Constructor for player class intializing only name and bet
+     * Constructor for player class intializing only name, username and bet
      * @param name name of the player
+     * @param username in game display name of the player
      * @param bet bet of the player
      */
     Player(String name, String username, int bet) {
         this.name = name;
+        this.username = username;
         this.bet = bet;
+    }
+
+    
+    /**
+     * Constructor for player class intializing only name and username
+     * @param name name of the player
+     * @param username in game display name of the player
+     */
+    Player(String name, String username) {
+        this.name = name;
         this.username = username;
     }
 
