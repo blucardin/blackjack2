@@ -1,6 +1,6 @@
 var personalCards = new EventSource("/personalcards?id=" + id);
 var personalCardData = "";
-personalCards.onmessage = function(event) {
+personalCards.onmessage = function (event) {
     if (event.data != "" && event.data != personalCardData) {
         personalCardData = JSON.parse(event.data);
         console.log(personalCardData);
@@ -17,7 +17,7 @@ personalCards.onmessage = function(event) {
         }
 
         var parent = document.getElementById("started");
-        if (parent.innerHTML == "Game Not Started"){
+        if (parent.innerHTML == "Game Not Started") {
             parent.innerHTML = "Game Started";
         }
     }
@@ -28,65 +28,65 @@ personalCards.onmessage = function(event) {
 
 var tableData = "";
 var source = new EventSource("/getTable?id=" + id);
-        source.onmessage = function(event) {
+source.onmessage = function (event) {
 
-            if (event.data != "" && JSON.parse(event.data) != tableData) {
-                tableData = JSON.parse(event.data);
-                console.log(tableData);
-                var parent = document.getElementById("table");
-                // clear the table
-                parent.innerHTML = "";
+    if (event.data != "" && JSON.parse(event.data) != tableData) {
+        tableData = JSON.parse(event.data);
+        console.log(tableData);
+        var parent = document.getElementById("table");
+        // clear the table
+        parent.innerHTML = "";
 
-                var players = tableData["Players"];
-                for (var key in players) {
-                    if (key == sub) {
-                        continue;
-                    }
-                    var div = document.createElement("div");
-                    div.innerHTML = players[key]["Username"] + ": ";
-                    for (var i = 0; i < players[key]["Cards"].length; i++) {
-                        if (players[key]["Cards"][i] == "unknown") {
-                            div.innerHTML += `
+        var players = tableData["Players"];
+        for (var key in players) {
+            if (key == sub) {
+                continue;
+            }
+            var div = document.createElement("div");
+            div.innerHTML = players[key]["Username"] + ": ";
+            for (var i = 0; i < players[key]["Cards"].length; i++) {
+                if (players[key]["Cards"][i] == "unknown") {
+                    div.innerHTML += `
                             <img src="/back.png" alt="unknown" width="100" height="100">
                             `;
-                            continue;
-                        }
-                        div.innerHTML += `
+                    continue;
+                }
+                div.innerHTML += `
                         <img src="/cards/${players[key]["Cards"][i]}.png" alt="${players[key]["Cards"][i]}" width="100" height="100">
                         `;
-                        if (i != players[key]["Cards"].length - 1) {
-                            div.innerHTML += ", ";
-                        }
-                    }
-                    parent.appendChild(div);
+                if (i != players[key]["Cards"].length - 1) {
+                    div.innerHTML += ", ";
                 }
+            }
+            parent.appendChild(div);
+        }
 
-                if (tableData["Winner"] != [""]) {
-                    console.log("Winner: " + tableData["Winner"][0]);
-                    var parent = document.getElementById("winner");
-                    var winningText = "";
-                    for (var i = 0; i < tableData["Winner"].length; i++) {
-                        if (i != 0) {
-                            winningText += " and ";
-                        }
-                        winningText += tableData["Players"][tableData["Winner"][i]]["Username"];
-                    }
-                    parent.innerHTML = `
+        if (tableData["Winner"] != [""]) {
+            console.log("Winner: " + tableData["Winner"][0]);
+            var parent = document.getElementById("winner");
+            var winningText = "";
+            for (var i = 0; i < tableData["Winner"].length; i++) {
+                if (i != 0) {
+                    winningText += " and ";
+                }
+                winningText += tableData["Players"][tableData["Winner"][i]]["Username"];
+            }
+            parent.innerHTML = `
                     <h1>Winner: ${winningText}</h1>
                     <button onclick="window.location.href='/'">Back to Home Screen</button>
                     `
-                    document.body.appendChild(parent);
-                }
-            }
-            else {
-                console.log("No table yet");
-            }
+            document.body.appendChild(parent);
         }
+    }
+    else {
+        console.log("No table yet");
+    }
+}
 
 // poll for the current turn and update the page with the username that is currently playing
 var turnData = "";
 var turn = new EventSource("/getTurn?id=" + id);
-turn.onmessage = function(event) {    
+turn.onmessage = function (event) {
     if (event.data != "" && event.data != turnData) {
         turnData = event.data;
         console.log(turnData);
@@ -99,7 +99,7 @@ turn.onmessage = function(event) {
             <button onclick="hit()">Hit</button>
             <button onclick="stand()">Stand</button>
                 `
-                parent.appendChild(child);
+            parent.appendChild(child);
         }
     }
     else {
@@ -109,7 +109,7 @@ turn.onmessage = function(event) {
 
 function hit() {
     var hit = new EventSource("/hit?id=" + id);
-    hit.onmessage = function(event) {
+    hit.onmessage = function (event) {
         console.log(event.data);
         hit.close();
     }
@@ -118,7 +118,7 @@ function hit() {
 
 function stand() {
     var stand = new EventSource("/stand?id=" + id);
-    stand.onmessage = function(event) {
+    stand.onmessage = function (event) {
         console.log(event.data);
         stand.close();
     }

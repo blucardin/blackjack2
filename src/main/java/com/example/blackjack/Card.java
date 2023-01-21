@@ -19,6 +19,7 @@ class Card {
 
     /**
      * Constructor for card class
+     * 
      * @param suit suit of the card
      * @param rank rank of the card
      */
@@ -29,6 +30,7 @@ class Card {
 
     /**
      * Sets the value of the card's suit
+     * 
      * @param suit
      */
     public void setSuit(String suit) {
@@ -37,6 +39,7 @@ class Card {
 
     /**
      * Sets the value of the card's rank
+     * 
      * @param rank
      */
     public void setRank(int rank) {
@@ -45,6 +48,7 @@ class Card {
 
     /**
      * Sets the value of the ace's value switch
+     * 
      * @param aceValueSwitch
      */
     public void setAceValueSwitch(boolean aceValueSwitch) {
@@ -53,6 +57,7 @@ class Card {
 
     /**
      * Gets the value of the card's suit
+     * 
      * @return the card's suit
      */
     public String getSuit() {
@@ -61,6 +66,7 @@ class Card {
 
     /**
      * Gets the value of the card's rank
+     * 
      * @return the card's rank
      */
     public int getRank() {
@@ -69,6 +75,7 @@ class Card {
 
     /**
      * Gets the value of the ace value switch
+     * 
      * @return whether or not the value of the ace should be switched
      */
     public boolean getAceValueSwitch() {
@@ -77,14 +84,15 @@ class Card {
 
     /**
      * Combines the suit and rank of the card to get it's name
+     * 
      * @return the name of the card
      */
     public String getName() {
-        
+
         if (rank == 11) {
             return "jack_of_" + suit + "2";
         } else if (rank == 12) {
-            return "queen_of_" + suit + "2"; 
+            return "queen_of_" + suit + "2";
         } else if (rank == 13) {
             return "king_of_" + suit + "2";
         } else if (rank == 1) {
@@ -96,6 +104,7 @@ class Card {
 
     /**
      * Gets the value of the card's points
+     * 
      * @return card's points
      */
     public int getPoints() {
@@ -107,5 +116,5 @@ class Card {
             return rank;
         }
     }
-    
+
 }

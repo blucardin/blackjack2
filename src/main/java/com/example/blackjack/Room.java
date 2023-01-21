@@ -11,7 +11,8 @@ public class Room {
 
     /**
      * Constructor for room class
-     * @param id id of the room
+     * 
+     * @param id        id of the room
      * @param dealersub dealer identification
      */
     Room(int id, String dealersub) {

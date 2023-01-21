@@ -6,26 +6,29 @@
 
     Programmed by Aaron Avram
     Date Programmed: January 21 2023
-*/ 
+*/
 
 package com.example.blackjack;
 
 import java.util.ArrayList;
 
 public class Player {
-    enum Status{STOOD, BUST, PLAYING};
+    enum Status {
+        STOOD, BUST, PLAYING
+    };
+
     private ArrayList<Card> hand = new ArrayList<>();
     private int bet = 0;
     private String name;
     private String username;
     private Status status = Status.PLAYING;
-    
 
     /**
      * Constructor for player class intializing only name, username and bet
-     * @param name name of the player
+     * 
+     * @param name     name of the player
      * @param username in game display name of the player
-     * @param bet bet of the player
+     * @param bet      bet of the player
      */
     Player(String name, String username, int bet) {
         this.name = name;
@@ -33,10 +36,10 @@ public class Player {
         this.bet = bet;
     }
 
-    
     /**
      * Constructor for player class intializing only name and username
-     * @param name name of the player
+     * 
+     * @param name     name of the player
      * @param username in game display name of the player
      */
     Player(String name, String username) {
@@ -46,6 +49,7 @@ public class Player {
 
     /**
      * Sets the player's hand
+     * 
      * @param hand player's new hand
      */
     public void setHand(ArrayList<Card> hand) {
@@ -54,6 +58,7 @@ public class Player {
 
     /**
      * Sets the player's bet for the game
+     * 
      * @param bet player's new bet
      */
     public void setBet(int bet) {
@@ -62,6 +67,7 @@ public class Player {
 
     /**
      * Sets the player's name for the game
+     * 
      * @param name player's new name
      */
     public void setName(String name) {
@@ -70,6 +76,7 @@ public class Player {
 
     /**
      * Sets the player's username for the game
+     * 
      * @param username player's new username
      */
     public void setUsername(String username) {
@@ -78,6 +85,7 @@ public class Player {
 
     /**
      * Set's the player's status
+     * 
      * @param status player's new status
      */
     public void setStatus(Status status) {
@@ -86,6 +94,7 @@ public class Player {
 
     /**
      * Gets the player's current hand
+     * 
      * @return player's hand
      */
     public ArrayList<Card> getHand() {
@@ -94,6 +103,7 @@ public class Player {
 
     /**
      * Gets the player's bet
+     * 
      * @return player's bet
      */
     public double getBet() {
@@ -102,6 +112,7 @@ public class Player {
 
     /**
      * Gets the player's name
+     * 
      * @return player's name
      */
     public String getName() {
@@ -110,6 +121,7 @@ public class Player {
 
     /**
      * Gets the player's username
+     * 
      * @return player's username
      */
     public String getUsername() {
@@ -118,6 +130,7 @@ public class Player {
 
     /**
      * Gets the player's current status
+     * 
      * @return player's status
      */
     public Status getStatus() {
@@ -125,12 +138,14 @@ public class Player {
     }
 
     /**
-     * Adds a card to the players hand and if their new point total is above 21 sets their status to bust
+     * Adds a card to the players hand and if their new point total is above 21 sets
+     * their status to bust
+     * 
      * @param card card to add to player's hand
      */
     public void hit(Card card) {
         hand.add(card);
-        
+
         if (getPoints() > 21) {
             status = Status.BUST;
         }
@@ -138,6 +153,7 @@ public class Player {
 
     /**
      * Card sum is calculated
+     * 
      * @return sum of the cards in players hand.
      */
     public int getPoints() {
@@ -159,6 +175,7 @@ public class Player {
 
     /**
      * Checks the player's cards to see if they have a blackjack
+     * 
      * @return true or false
      */
     public boolean isBlackJack() {
@@ -171,6 +188,7 @@ public class Player {
 
     /**
      * Checks the player's cards to see if they have any aces
+     * 
      * @return a list of the aces the player has
      */
     public ArrayList<Card> findAces() {
@@ -187,6 +205,7 @@ public class Player {
 
     /**
      * Checks if the player is still in the game
+     * 
      * @return true or false
      */
     public boolean keepPlaying() {
@@ -198,4 +217,3 @@ public class Player {
     }
 
 }
-
