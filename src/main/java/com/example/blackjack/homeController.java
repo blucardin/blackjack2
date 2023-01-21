@@ -68,6 +68,11 @@ public class homeController {
         return "index";
     }
 
+    @GetMapping("/rules")
+    public String rules() {
+        return "rules";
+    }
+
     @GetMapping("/create")
     public String create(Model model, OAuth2AuthenticationToken identifyer){
         // create a new room in the database
