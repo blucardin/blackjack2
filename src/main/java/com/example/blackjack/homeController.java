@@ -23,13 +23,17 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.example.blackjack.Player.Status;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.Statement;
-
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @CrossOrigin(origins = "*")
 @Controller
@@ -38,7 +42,7 @@ public class homeController {
     static Connection connection = null;
     static Statement statement = null;
     
-    public void storeData(int id, ArrayList<String> winners) throws FileNotFoundException{
+    public void storeData(int id, ArrayList<String> winners) throws IOException{
     
         ArrayList<Player> players = new ArrayList<>();
         for (int i = 0; i < rooms.size(); i++) {
@@ -55,7 +59,11 @@ public class homeController {
 
         String writeString = "";
 
-        PrintWriter out = new PrintWriter("data.txt");
+        // append to the file
+        PrintWriter out = new PrintWriter(new java.io.FileWriter("data.txt", true));
+        // get the current time and date
+        String time = new SimpleDateFormat("HH:mm:ss").format(new Date());
+        String date = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
 
         out.println("Hello Heaven");
         for (int i = 0; i < players.size(); i++) {
@@ -64,15 +72,59 @@ public class homeController {
             }
 
             if (winners.contains(players.get(i).getName())) {
-                writeString = players.get(i).getName() + "," + "true\n";
+                writeString = players.get(i).getName() + "," + "true," + time + "," + date;
             } else {
-                writeString = players.get(i).getName() + "," + "false\n";
+                writeString = players.get(i).getName() + "," + "false," + time + "," + date;
             }
 
             out.println(writeString);
         }
         out.close();
     }   
+
+    @GetMapping("/history")
+    public String history(Model model, OAuth2AuthenticationToken identifyer) {
+        String sub = identifyer.getPrincipal().getAttributes().get("sub").toString();
+
+        // look in the file and count the number of times the user has won, lost and played a game
+        int wins = 0;
+        int losses = 0;
+        int games = 0;
+        
+        // create a new hashmap to store the data
+        Map<String, String> table = new HashMap<String, String>();
+
+        try {
+            java.io.File file = new java.io.File("data.txt");
+            java.util.Scanner input = new java.util.Scanner(file);
+
+            while (input.hasNext()) {
+                String line = input.nextLine();
+                String[] data = line.split(",");
+                if (data[0].equals(sub)) {
+                    if (data[1].equals("true")) {
+                        wins++;
+                        table.put("win", data[2] + " " + data[3]);
+                    } else {
+                        losses++;
+                        table.put("loss", data[2] + " " + data[3]);
+                    }
+                    games++;
+                }
+            }
+            input.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found");
+        }
+
+        model.addAttribute("wins", wins);
+        model.addAttribute("losses", losses);
+        model.addAttribute("games", games);
+        model.addAttribute("table", table);
+
+        return "history";
+    }
+
 
 
     private static volatile ArrayList<Room> rooms = new ArrayList<Room>();    ; // number of engines running
