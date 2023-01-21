@@ -54,8 +54,9 @@ source.onmessage = function (event) {
                 div.innerHTML += `
                         <img src="/cards/${players[key]["Cards"][i]}.png" alt="${players[key]["Cards"][i]}" width="100" height="100">
                         `;
-                if (i != players[key]["Cards"].length - 1) {
-                    div.innerHTML += ", ";
+                if (players[key]["Status"] == "BUST") {
+                    div.innerHTML += "<h3>BUST<h3>";
+                    break;
                 }
             }
             parent.appendChild(div);

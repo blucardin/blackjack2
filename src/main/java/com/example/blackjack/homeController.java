@@ -8,6 +8,7 @@
  * Thymeleaf is used to render the html files and pass data to them.
  * 
  * This file was programmed completely by Noah Virjee. 
+ * All unspecified files (pom, html, css, etc.) were created by Noah. 
  * Last modified on 1/21/2023 at 6:00AM EST.
  */
 
@@ -47,10 +48,10 @@ public class homeController {
 
         ArrayList<Player> players = new ArrayList<>();
         for (int i = 0; i < rooms.size(); i++) {
-            if (rooms.get(i).getId() == id) {
-                players = rooms.get(i).getEngine().getPlayers();
+            if (rooms.get(i).getId() == id) { // find the room
+                players = rooms.get(i).getEngine().getPlayers(); // get the players
                 if (rooms.get(i).isStored() == false) {
-                    rooms.get(i).setStored(true);
+                    rooms.get(i).setStored(true); // set the stored attribute to true so that the data is not stored twice
                 } else {
                     return;
                 }
@@ -61,23 +62,23 @@ public class homeController {
         String writeString = "";
 
         // append to the file
-        PrintWriter out = new PrintWriter(new java.io.FileWriter("data.txt", true));
+        PrintWriter out = new PrintWriter(new java.io.FileWriter("data.txt", true)); // create a new file writer
         // get the current time and date
-        String time = new SimpleDateFormat("HH:mm:ss").format(new Date());
-        String date = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
+        String time = new SimpleDateFormat("HH:mm:ss").format(new Date()); // get the current time
+        String date = new SimpleDateFormat("dd/MM/yyyy").format(new Date()); // get the current date
 
         for (int i = 0; i < players.size(); i++) {
-            if (players.get(i).getName() == "Dealer") {
+            if (players.get(i).getName() == "Dealer") { // skip the dealer
                 continue;
             }
 
             if (winners.contains(players.get(i).getName())) {
-                writeString = players.get(i).getName() + "," + "true," + time + "," + date;
+                writeString = players.get(i).getName() + "," + "true," + time + "," + date;  // write the data to the file if the player won
             } else {
-                writeString = players.get(i).getName() + "," + "false," + time + "," + date;
-            }
+                writeString = players.get(i).getName() + "," + "false," + time + "," + date; // write the data to the file if the player lost
+            } 
 
-            out.println(writeString);
+            out.println(writeString); // write the data to the file
         }
         out.close();
     }
@@ -93,42 +94,42 @@ public class homeController {
      */
     @GetMapping("/history")
     public String history(Model model, OAuth2AuthenticationToken identifyer) {
-        String sub = identifyer.getPrincipal().getAttributes().get("sub").toString();
+        String sub = identifyer.getPrincipal().getAttributes().get("sub").toString(); // get the user id
 
         // look in the file and count the number of times the user has won, lost and
         // played a game
         int wins = 0;
-        int losses = 0;
+        int losses = 0; 
         int games = 0;
 
         // create a new hashmap to store the data
         Map<String, String> table = new HashMap<String, String>();
 
         try {
-            java.io.File file = new java.io.File("data.txt");
-            java.util.Scanner input = new java.util.Scanner(file);
+            java.io.File file = new java.io.File("data.txt"); 
+            java.util.Scanner input = new java.util.Scanner(file); // create a new scanner to read the file
 
             while (input.hasNext()) {
                 String line = input.nextLine();
-                String[] data = line.split(",");
+                String[] data = line.split(","); // split the data by commas
                 if (data[0].equals(sub)) {
                     if (data[1].equals("true")) {
                         wins++;
-                        table.put(data[2] + " " + data[3], "win");
+                        table.put(data[2] + " " + data[3], "win"); // store the data in the hashmap
                     } else {
                         losses++;
-                        table.put(data[2] + " " + data[3], "loss");
+                        table.put(data[2] + " " + data[3], "loss"); // store the data in the hashmap
                     }
                     games++;
                 }
             }
             input.close();
         } catch (FileNotFoundException e) {
-            System.out.println("File not found");
+            System.out.println("File not found"); // print an error message if the file is not found
         }
 
         model.addAttribute("wins", wins);
-        model.addAttribute("losses", losses);
+        model.addAttribute("losses", losses); // add the data to the model
         model.addAttribute("games", games);
         model.addAttribute("table", table);
 
@@ -227,12 +228,8 @@ public class homeController {
      */
     @GetMapping("/create")
     public String create(Model model, OAuth2AuthenticationToken identifyer) {
-        // create a new room in the database
-        // statement.execute("insert into room (locked, turn) values('false', 0)",
-        // Statement.RETURN_GENERATED_KEYS);
-        // get the new id
-        String sub = identifyer.getPrincipal().getAttributes().get("sub").toString();
-
+        String sub = identifyer.getPrincipal().getAttributes().get("sub").toString(); // get the user id
+ 
         rooms.add(new Room(rooms.size(), sub));
         model.addAttribute("id", rooms.size() - 1);// rs.getInt("id"));
         return "create";
@@ -250,16 +247,16 @@ public class homeController {
     public String start(Model model, String id, OAuth2AuthenticationToken identifyer) {
 
         String roomID = id;
-        // get the dealer id
-        String sub = identifyer.getPrincipal().getAttributes().get("sub").toString();
+
+        String sub = identifyer.getPrincipal().getAttributes().get("sub").toString(); // get the user id
 
         for (int i = 0; i < rooms.size(); i++) {
-            if (rooms.get(i).getId() == Integer.parseInt(id) && rooms.get(i).getDealersub().equals(sub)) {
-                rooms.get(i).setLocked(true);
-                rooms.get(i).getEngine().initializeGame();
-                model.addAttribute("id", roomID);
+            if (rooms.get(i).getId() == Integer.parseInt(id) && rooms.get(i).getDealersub().equals(sub)) { // if the room exists and the user is the creator
+                rooms.get(i).setLocked(true); // lock the room
+                rooms.get(i).getEngine().initializeGame(); // initialize the game
+                model.addAttribute("id", roomID); // add the data  to the model
                 model.addAttribute("sub", sub);
-                return "start";
+                return "start"; // return the start page
             }
         }
         // if the room doesn't exist, return the home page
@@ -291,22 +288,22 @@ public class homeController {
 
         for (int i = 0; i < rooms.size(); i++) {
 
-            if (rooms.get(i).isLocked() == false && rooms.get(i).getId() == Integer.parseInt(id)) {
+            if (rooms.get(i).isLocked() == false && rooms.get(i).getId() == Integer.parseInt(id)) { // if the room exists and is not locked
 
                 String roomID = id;
 
                 String sub = identifyer.getPrincipal().getAttributes().get("sub").toString();
-                String name = identifyer.getPrincipal().getAttributes().get("name").toString();
+                String name = identifyer.getPrincipal().getAttributes().get("name").toString(); // get the user id and name
 
-                rooms.get(i).getEngine().addPlayer(sub, name, 0); 
+                rooms.get(i).getEngine().addPlayer(sub, name, 0);  // add the player to the game
 
-                model.addAttribute("id", roomID);
+                model.addAttribute("id", roomID); 
 
-                model.addAttribute("sub", sub);
-                return "game";
+                model.addAttribute("sub", sub); // add the data to the model
+                return "game"; // return the game page
             }
         }
-        return "index"; 
+        return "index";  // if the room doesn't exist, return the home page
     }
 
     /**
@@ -319,28 +316,28 @@ public class homeController {
      */
     @ResponseBody
     @GetMapping(value = "/personalcards", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter personalcards(String id, OAuth2AuthenticationToken identifyer) throws IOException {
+    public SseEmitter personalcards(String id, OAuth2AuthenticationToken identifyer) throws IOException { 
         SseEmitter emitter = new SseEmitter();
-        String sub = identifyer.getPrincipal().getAttributes().get("sub").toString();
+        String sub = identifyer.getPrincipal().getAttributes().get("sub").toString(); // get the user id
 
         for (int i = 0; i < rooms.size(); i++) {
 
-            if (rooms.get(i).getId() == Integer.parseInt(id)) {
+            if (rooms.get(i).getId() == Integer.parseInt(id)) { // if the room exists
 
-                ArrayList<Player> players = rooms.get(i).getEngine().getPlayers();
+                ArrayList<Player> players = rooms.get(i).getEngine().getPlayers(); // get the players
 
-                for (int j = 0; j < players.size(); j++) {
+                for (int j = 0; j < players.size(); j++) { // loop through the players
 
-                    if (players.get(j).getName().equals(sub)) {
+                    if (players.get(j).getName().equals(sub)) { // if the player is the user
 
-                        ArrayList<Card> hand = players.get(j).getHand();
+                        ArrayList<Card> hand = players.get(j).getHand(); // get the user's hand
                         String payload = "";
 
-                        if (hand.size() > 0) {
+                        if (hand.size() > 0) { // if the user has cards
                             payload = "{ \"cards\": [";
                             // format the payload as an json array
                             for (int k = 0; k < hand.size(); k++) {
-                                payload += "\"" + hand.get(k).getName() + "\"";
+                                payload += "\"" + hand.get(k).getName() + "\""; // pack the cards into the payload
                                 if (k != hand.size() - 1) {
                                     payload += ",";
                                 }
@@ -348,17 +345,17 @@ public class homeController {
                             payload += "]}";
                         }
 
-                        emitter.send(payload);
+                        emitter.send(payload); // send the payload
                         emitter.complete();
                         return emitter;
                     }
                 }
-                emitter.send(""); 
+                emitter.send("");  // if the user doesn't exist, send an empty payload
                 emitter.complete();
                 return emitter;
             }
         }
-        emitter.send("");
+        emitter.send(""); // if the room doesn't exist, send an empty payload
         emitter.complete();
         return emitter;
     }
@@ -400,55 +397,55 @@ public class homeController {
 
         for (int i = 0; i < rooms.size(); i++) {
 
-            if (rooms.get(i).getId() == Integer.parseInt(id)) {
+            if (rooms.get(i).getId() == Integer.parseInt(id)) { // if the room exists
 
-                ArrayList<Player> table = rooms.get(i).getEngine().getPlayers();
+                ArrayList<Player> table = rooms.get(i).getEngine().getPlayers(); // get the players
                 String payload = "";
-                JSONObject jo = new JSONObject();
+                JSONObject jo = new JSONObject(); // create a json object for the table
                 int t = 1;
 
-                if (rooms.get(i).getEngine().getPlayers().get(0).getStatus() != Status.PLAYING) {
+                if (rooms.get(i).getEngine().getPlayers().get(0).getStatus() != Status.PLAYING) { // if the game is over
                     JSONArray winner = new JSONArray();
-                    ArrayList<String> winners = CalculateWinner(id);
+                    ArrayList<String> winners = CalculateWinner(id); // get the winners
                     for (String win : winners) {
                         winner.put(win);
                     }
-                    jo.put("Winner", winner);
-                    storeData(Integer.parseInt(id), winners);
+                    jo.put("Winner", winner); // add the winners to the json object
+                    storeData(Integer.parseInt(id), winners); // store the data
                     t = 0;
                 } else {
-                    jo.put("Winner", "");
+                    jo.put("Winner", ""); // if the game is not over, send an empty string
                 }
 
-                JSONObject players = new JSONObject();
+                JSONObject players = new JSONObject();  // create a json object for the players
                 if (table.size() > 0) {
                     for (int j = 0; j < table.size(); j++) {
 
-                        JSONObject player = new JSONObject();
+                        JSONObject player = new JSONObject(); 
                         JSONArray cards = new JSONArray();
 
                         if (t == 1) {
                             cards.put("unknown");
                         }
-                        for (int k = t; k < table.get(j).getHand().size(); k++) {
+                        for (int k = t; k < table.get(j).getHand().size(); k++) { // add the cards to the json object
                             cards.put(table.get(j).getHand().get(k).getName());
                         }
 
                         player.put("Cards", cards);
-                        player.put("Username", table.get(j).getUsername());
+                        player.put("Username", table.get(j).getUsername()); // data to the main json object
                         player.put("Status", table.get(j).getStatus());
                         players.put(table.get(j).getName(), player);
                     }
-                    jo.put("Players", players);
-                    payload = jo.toString();
+                    jo.put("Players", players); 
+                    payload = jo.toString(); // convert the json object to a string
                 }
 
-                emitter.send(payload);
+                emitter.send(payload); // send the payload
                 emitter.complete();
                 return emitter;
             }
         }
-        emitter.send("");
+        emitter.send(""); // if the room doesn't exist, send an empty payload
         emitter.complete();
         return emitter;
     }
@@ -479,7 +476,8 @@ public class homeController {
                     if (players.get(j).getPoints() > playerScore && players.get(j).getStatus() != Status.BUST) {
                         playerScore = players.get(j).getPoints();
                         if (players.get(j).getPoints() <= 11) {
-                            if (players.get(j).findAces().size() > 0) {
+                            if (players.get(j).findAces().size() > 0) { // if the player has an ace, and the ace is 11, and
+                                                                       // the player has the max points, he wins
                                 playerScore += 10;
                             }
                         }
@@ -498,7 +496,8 @@ public class homeController {
                         winners.add(players.get(j).getName());
                     }
                     if (players.get(j).findAces().size() > 0 && players.get(j).getPoints() == playerScore - 10) {
-                        winners.add(players.get(j).getName());
+                        winners.add(players.get(j).getName()); // if the player has an ace, and the ace is 11, and the
+                                                              // player has the max points, he wins
                     }
                 }
 
@@ -523,11 +522,11 @@ public class homeController {
     public SseEmitter getTurn(String id) throws IOException {
         SseEmitter emitter = new SseEmitter();
 
-        for (int i = 0; i < rooms.size(); i++) {
+        for (int i = 0; i < rooms.size(); i++) { // find the room
 
             if (rooms.get(i).getId() == Integer.parseInt(id)) {
 
-                if (rooms.get(i).isLocked() == false) {
+                if (rooms.get(i).isLocked() == false) { // if the room is locked, send an empty payload
                     emitter.send("");
                     emitter.complete();
                     return emitter;
@@ -535,13 +534,14 @@ public class homeController {
 
                 int turn = rooms.get(i).getTurn();
                 ArrayList<Player> players = rooms.get(i).getEngine().getPlayers();
-                String payload = players.get(players.size() - turn - 1).getName();
+                String payload = players.get(players.size() - turn - 1).getName(); // get the name of the player
 
                 if (payload == "Dealer") {
-                    rooms.get(i).getEngine().dealerTurn();
+                    rooms.get(i).getEngine().dealerTurn(); // if the turn is the dealer, make the dealer hit until he has
+                                                           // more than 17 points
                 }
 
-                emitter.send(payload);
+                emitter.send(payload); // send the payload
                 emitter.complete();
                 return emitter;
             }
@@ -564,33 +564,34 @@ public class homeController {
     @GetMapping(value = "/hit", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter hit(String id, OAuth2AuthenticationToken identifyer) throws IOException {
         SseEmitter emitter = new SseEmitter();
-        String sub = identifyer.getPrincipal().getAttributes().get("sub").toString();
+        String sub = identifyer.getPrincipal().getAttributes().get("sub").toString(); // get the sub of the player
 
         for (int i = 0; i < rooms.size(); i++) {
 
-            if (rooms.get(i).getId() == Integer.parseInt(id)) {
+            if (rooms.get(i).getId() == Integer.parseInt(id)) { // find the room
 
                 int turn = rooms.get(i).getTurn();
-                ArrayList<Player> players = rooms.get(i).getEngine().getPlayers();
+                ArrayList<Player> players = rooms.get(i).getEngine().getPlayers(); // get the players
                 Player hittingplayer = players.get(players.size() - turn - 1);
 
-                if (hittingplayer.getName() == sub) {
+                if (hittingplayer.getName() == sub) { // if the player is the player that is hitting
                     if (hittingplayer.getStatus() == Status.PLAYING) {
 
-                        hittingplayer.hit(rooms.get(i).getEngine().dealCard());
+                        hittingplayer.hit(rooms.get(i).getEngine().dealCard()); // hit the player
 
                         if (hittingplayer.getStatus() == Status.BUST) {
-                            rooms.get(i).setTurn(rooms.get(i).getTurn() + 1);
+                            rooms.get(i).setTurn(rooms.get(i).getTurn() + 1); // if the player busts, move the turn to the
+                                                                             // next player
                         }
 
-                        emitter.send("Hit Succsessful");
+                        emitter.send("Hit Succsessful"); // send a success message
                         emitter.complete();
                         return emitter;
                     }
                 }
             }
         }
-        emitter.send("Hit FAILUE");
+        emitter.send("Hit FAILUE"); // send a failue message
         emitter.complete();
         return emitter;
     }
@@ -608,26 +609,26 @@ public class homeController {
     @GetMapping(value = "/stand", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter stand(String id, OAuth2AuthenticationToken identifyer) throws IOException {
         SseEmitter emitter = new SseEmitter();
-        String sub = identifyer.getPrincipal().getAttributes().get("sub").toString();
+        String sub = identifyer.getPrincipal().getAttributes().get("sub").toString(); // get the sub of the player
 
         for (int i = 0; i < rooms.size(); i++) {
 
-            if (rooms.get(i).getId() == Integer.parseInt(id)) {
+            if (rooms.get(i).getId() == Integer.parseInt(id)) { // find the room
 
                 int turn = rooms.get(i).getTurn();
-                ArrayList<Player> players = rooms.get(i).getEngine().getPlayers();
-                Player standingplayer = rooms.get(i).getEngine().getPlayers().get(players.size() - turn - 1);
-                if (standingplayer.getName() == sub) {
-                    if (standingplayer.getStatus() == Status.PLAYING) {
-                        standingplayer.stand();
-                        rooms.get(i).setTurn(rooms.get(i).getTurn() + 1);
+                ArrayList<Player> players = rooms.get(i).getEngine().getPlayers(); // get the players
+                Player standingplayer = rooms.get(i).getEngine().getPlayers().get(players.size() - turn - 1);  // get the player that is standing
+                if (standingplayer.getName() == sub) { // if the player is the player that is standing
+                    if (standingplayer.getStatus() == Status.PLAYING) { // if the player is playing
+                        standingplayer.stand(); // stand the player
+                        rooms.get(i).setTurn(rooms.get(i).getTurn() + 1);  // move the turn to the next player
                     }
                 }
                 break;
             }
         }
 
-        emitter.send("Stand Succsessful");
+        emitter.send("Stand Succsessful"); // send a success message
         emitter.complete();
         return emitter;
     }
