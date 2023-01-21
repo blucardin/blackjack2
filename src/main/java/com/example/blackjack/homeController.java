@@ -1,3 +1,12 @@
+/*
+ * This file is part of Blackjack. It is the controller for the whole application.
+ * Spring boot starts the application and then uses the methods defined in this file to handle requests.
+ * Each method marked with @GetMapping is mapped to a specific url and returns some data to the user.
+ * 
+ * This file was programmed completely by Noah Virjee. 
+ * Last modified on 1/21/2023 at 3:00AM EST.
+ */
+
 package com.example.blackjack;
 
 import org.json.JSONArray;
@@ -8,21 +17,22 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 // import SimpMessagingTemplate
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.example.blackjack.Player.Status;
 
-import reactor.core.publisher.Flux;
-
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.Statement;
-import java.time.Duration;
-
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @CrossOrigin(origins = "*")
 @Controller
@@ -30,11 +40,127 @@ public class homeController {
 
     static Connection connection = null;
     static Statement statement = null;
-    public static volatile ArrayList<Room> rooms = new ArrayList<Room>();    ; // number of engines running
+    
+    public void storeData(int id, ArrayList<String> winners) throws IOException{
+    
+        ArrayList<Player> players = new ArrayList<>();
+        for (int i = 0; i < rooms.size(); i++) {
+            if (rooms.get(i).id == id) {
+                players = rooms.get(i).engine.getPlayers();
+                if (rooms.get(i).stored == false) {
+                    rooms.get(i).stored = true;
+                } else {
+                    return;
+                }
+                break;
+            }
+        }
+
+        String writeString = "";
+
+        // append to the file
+        PrintWriter out = new PrintWriter(new java.io.FileWriter("data.txt", true));
+        // get the current time and date
+        String time = new SimpleDateFormat("HH:mm:ss").format(new Date());
+        String date = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
+
+        out.println("Hello Heaven");
+        for (int i = 0; i < players.size(); i++) {
+            if (players.get(i).getName() == "Dealer") {
+                continue;
+            }
+
+            if (winners.contains(players.get(i).getName())) {
+                writeString = players.get(i).getName() + "," + "true," + time + "," + date;
+            } else {
+                writeString = players.get(i).getName() + "," + "false," + time + "," + date;
+            }
+
+            out.println(writeString);
+        }
+        out.close();
+    }   
+
+    @GetMapping("/history")
+    public String history(Model model, OAuth2AuthenticationToken identifyer) {
+        String sub = identifyer.getPrincipal().getAttributes().get("sub").toString();
+
+        // look in the file and count the number of times the user has won, lost and played a game
+        int wins = 0;
+        int losses = 0;
+        int games = 0;
+        
+        // create a new hashmap to store the data
+        Map<String, String> table = new HashMap<String, String>();
+
+        try {
+            java.io.File file = new java.io.File("data.txt");
+            java.util.Scanner input = new java.util.Scanner(file);
+
+            while (input.hasNext()) {
+                String line = input.nextLine();
+                String[] data = line.split(",");
+                if (data[0].equals(sub)) {
+                    if (data[1].equals("true")) {
+                        wins++;
+                        table.put("win", data[2] + " " + data[3]);
+                    } else {
+                        losses++;
+                        table.put("loss", data[2] + " " + data[3]);
+                    }
+                    games++;
+                }
+            }
+            input.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found");
+        }
+
+        model.addAttribute("wins", wins);
+        model.addAttribute("losses", losses);
+        model.addAttribute("games", games);
+        model.addAttribute("table", table);
+
+        return "history";
+    }
+
+
+
+    private static volatile ArrayList<Room> rooms = new ArrayList<Room>();    ; // number of engines running
+
+    public void voidMethod1() {
+        // do nothing
+    }
+    public void voidMethod2() {
+        // do nothing
+    }
+    public void overloadMethod1(int x) {
+        voidMethod1();
+        voidMethod2();
+    }
+    public void overloadMethod1(int x, int y, boolean z) {
+        overloadMethod1(x);
+        // do nothing
+    }
+    public void overloadMethod2() {
+        overloadMethod1(1, 2, true);
+        // do nothing
+    }
+    public void overloadMethod2(int x) {
+        overloadMethod2();
+        // do nothing
+    }
+
 
     @GetMapping("/home")
     public String index() {
+        overloadMethod2(1);
         return "index";
+    }
+
+    @GetMapping("/rules")
+    public String rules() {
+        return "rules";
     }
 
     @GetMapping("/create")
@@ -160,7 +286,7 @@ public class homeController {
     @GetMapping(value = "/getTable", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter getTable(String id, OAuth2AuthenticationToken identifyer) throws IOException{
         SseEmitter emitter = new SseEmitter();
-        String sub = identifyer.getPrincipal().getAttributes().get("sub").toString();
+        // String sub = identifyer.getPrincipal().getAttributes().get("sub").toString();
 
         for (int i = 0; i < rooms.size(); i++) {
 
@@ -178,6 +304,7 @@ public class homeController {
                         winner.put(win);
                     }
                     jo.put("Winner", winner);
+                    storeData(Integer.parseInt(id), winners);
                     t = 0;
                 }
                 else {
@@ -234,6 +361,7 @@ public class homeController {
                 for (int j = 1; j < players.size(); j++) {
                     if (players.get(j).getPoints() > playerScore && players.get(j).getStatus() != Status.BUST) {
                         playerScore = players.get(j).getPoints();
+                        // TODO: if the player has an ace, and is at at or below 11 points, add 11 to the score
                     }
                 }
                 // if the dealer has the max points, he wins

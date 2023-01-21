@@ -8,8 +8,6 @@
     Date Programmed: January 21 2023
  */ 
 
- // TO DO: ask rob about the documentation for methods
-
 package com.example.blackjack;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,7 +53,7 @@ public class BlackJackEngine {
      * Generates the cards in the deck
      */
     private void generateDeck() {
-        String[] suits = {"Spades", "Clubs", "Hearts", "Diamonds"};
+        String[] suits = {"spades", "clubs", "hearts", "diamonds"};
         for (String i: suits) {
             for (int j = 1; j < 14; j++) {
                 deck.add(new Card(i, j));
@@ -68,7 +66,7 @@ public class BlackJackEngine {
      * @param numberOfdecks number of standard decks in the BlackJack deck
      */
     private void generateDeck(int numberOfdecks) {
-        String[] suits = {"Spades", "Clubs", "Hearts", "Diamonds"};
+        String[] suits = {"spades", "clubs", "hearts", "diamonds"};
         for (int k = 0; k < numberOfdecks; k++) {
             for (String i: suits) {
                 for (int j = 1; j < 14; j++) {
@@ -133,7 +131,15 @@ public class BlackJackEngine {
      * Uses only one deck
      */
     public Card[][] initializeGame() {
-        generateDeck();
+        Random numGenerator = new Random();
+
+        int randNumber = numGenerator.nextInt(1, 9);
+
+        if (randNumber == 1) {
+            generateDeck();
+        } else {
+            generateDeck(randNumber);
+        }
 
         Card[][] listOfCards = new Card[2][players.size()];
         Card[] cards = dealCard(players.size()*2);
