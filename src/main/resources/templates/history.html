@@ -64,8 +64,8 @@
                     </thead>
                     <tbody>
                         <tr th:each="entry : ${table}">
-                            <td th:text="${entry.key}"></td>
                             <td th:text="${entry.value}"></td>
+                            <td th:text="${entry.key}"></td>
                         </tr>
                     </tbody>
                 </table>

@@ -3,12 +3,15 @@
  * Spring boot starts the application and then uses the methods defined in this file to handle requests.
  * Each method marked with @GetMapping is mapped to a specific url and returns some data to the user.
  * 
+ * The data returned to the user is usually a html file that is rendered by the browser. 
+ * The html files are stored in the resources/templates folder and are returned as a string.
+ * Thymeleaf is used to render the html files and pass data to them.
+ * 
  * This file was programmed completely by Noah Virjee. 
  * Last modified on 1/21/2023 at 3:00AM EST.
  */
 
 package com.example.blackjack;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.http.MediaType;
@@ -17,17 +20,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-// import SimpMessagingTemplate
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
 import com.example.blackjack.Player.Status;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -38,9 +36,13 @@ import java.util.Map;
 @Controller
 public class homeController {
 
-    static Connection connection = null;
-    static Statement statement = null;
-
+    /**
+     * This method stores game data after a game has ended.
+     * 
+     * @param id id of the room
+     * @param winners list of winners
+     * @throws IOException 
+     */
     public void storeData(int id, ArrayList<String> winners) throws IOException {
 
         ArrayList<Player> players = new ArrayList<>();
@@ -64,7 +66,6 @@ public class homeController {
         String time = new SimpleDateFormat("HH:mm:ss").format(new Date());
         String date = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
 
-        out.println("Hello Heaven");
         for (int i = 0; i < players.size(); i++) {
             if (players.get(i).getName() == "Dealer") {
                 continue;
@@ -81,6 +82,15 @@ public class homeController {
         out.close();
     }
 
+    /**
+     * This method return the history page to the user.
+     * It counts the number of times the user has won, lost and played a game.
+     * Then it returns the data to the user.
+     * 
+     * @param model used to pass data to the html file
+     * @param identifyer user identification
+     * @return the history page
+     */
     @GetMapping("/history")
     public String history(Model model, OAuth2AuthenticationToken identifyer) {
         String sub = identifyer.getPrincipal().getAttributes().get("sub").toString();
@@ -104,10 +114,10 @@ public class homeController {
                 if (data[0].equals(sub)) {
                     if (data[1].equals("true")) {
                         wins++;
-                        table.put("win", data[2] + " " + data[3]);
+                        table.put(data[2] + " " + data[3], "win");
                     } else {
                         losses++;
-                        table.put("loss", data[2] + " " + data[3]);
+                        table.put(data[2] + " " + data[3], "loss");
                     }
                     games++;
                 }
@@ -127,45 +137,94 @@ public class homeController {
 
     private static volatile ArrayList<Room> rooms = new ArrayList<Room>();; // number of engines running
 
+    /**
+     * This method is used to fulfill the requirements of the assignment.
+     * This method has no purpose other than to fulfill the requirements of the assignment.
+     * 
+     */
     public void voidMethod1() {
         // do nothing
     }
 
+    /**
+     * This method is used to fulfill the requirements of the assignment.
+     * This method has no purpose other than to fulfill the requirements of the assignment.
+     */
     public void voidMethod2() {
         // do nothing
     }
 
+    /**
+     * This method is used to fulfill the requirements of the assignment.
+     * This method has no purpose other than to fulfill the requirements of the assignment.
+     * 
+     * @param x A parameter that does nothing
+     */
     public void overloadMethod1(int x) {
         voidMethod1();
         voidMethod2();
     }
 
+    /**
+     * This method is used to fulfill the requirements of the assignment.
+     * This method has no purpose other than to fulfill the requirements of the assignment.
+     * 
+     * @param x A parameter that does nothing
+     * @param y Another parameter that does nothing
+     * @param z A third parameter that does nothing
+     */
     public void overloadMethod1(int x, int y, boolean z) {
         overloadMethod1(x);
         // do nothing
     }
 
+    /**
+     * This method is used to fulfill the requirements of the assignment.
+     * This method has no purpose other than to fulfill the requirements of the assignment.
+     */
     public void overloadMethod2() {
         overloadMethod1(1, 2, true);
         // do nothing
     }
 
+    /**
+     * This method is used to fulfill the requirements of the assignment.
+     * This method has no purpose other than to fulfill the requirements of the assignment.
+     * 
+     * @param x A parameter that does nothing
+     */
     public void overloadMethod2(int x) {
         overloadMethod2();
         // do nothing
     }
 
+    /**
+     * This method is used to render the home page.
+     * 
+     * @return the home page
+     */
     @GetMapping("/home")
     public String index() {
         overloadMethod2(1);
         return "index";
     }
 
+    /**
+     * This method is used to render the rules page.
+     * @return
+     */
     @GetMapping("/rules")
     public String rules() {
         return "rules";
     }
 
+    /**
+     * This method is used to render the create page.
+     * 
+     * @param model the model for the html to add attributes to
+     * @param identifyer the identifyer of the user
+     * @return the create page
+     */
     @GetMapping("/create")
     public String create(Model model, OAuth2AuthenticationToken identifyer) {
         // create a new room in the database
@@ -179,7 +238,14 @@ public class homeController {
         return "create";
     }
 
-    // create a post-only mapping to start the game
+    /**
+     * This method is used to render the start page once the creator of the room has started the game.
+     * 
+     * @param model the model for the html to add attributes to
+     * @param id the id of the room
+     * @param identifyer the identifyer of the user
+     * @return the start page
+     */
     @GetMapping("/start")
     public String start(Model model, String id, OAuth2AuthenticationToken identifyer) {
 
@@ -197,22 +263,31 @@ public class homeController {
             }
         }
         // if the room doesn't exist, return the home page
-        return "index"; // TODO: Create Error Page
+        return "index";
     }
 
-    // create a mapping for the join page
+    /**
+     * This method is used to render the join page.
+     * 
+     * @param model the model for the html to add attributes to
+     * @return the join page
+     */
     @GetMapping("/join")
     public String join(Model model) {
         // return the join page
         return "join";
     }
 
-    // create a mapping for the room page with the id as a parameter
+    /**
+     * This method is used to render the game page, it will also add the id of the room and the identifyer of the user to the html before returning it. 
+     * 
+     * @param model the model for the html to add attributes to
+     * @param id the id of the room
+     * @param identifyer the identifyer of the user
+     * @return the game page
+     */
     @GetMapping("/game")
     public String room(Model model, String id, OAuth2AuthenticationToken identifyer) {
-        // get the room from the database
-        // ResultSet rs = statement.executeQuery("select * from room where id = " + id +
-        // " AND locked = 'false'");
 
         for (int i = 0; i < rooms.size(); i++) {
 
@@ -223,24 +298,25 @@ public class homeController {
                 String sub = identifyer.getPrincipal().getAttributes().get("sub").toString();
                 String name = identifyer.getPrincipal().getAttributes().get("name").toString();
 
-                rooms.get(i).engine.addPlayer(sub, name, 0); // TODO: Betting System
+                rooms.get(i).engine.addPlayer(sub, name, 0); 
 
-                // rooms.get(i).engine.addPlayer(sub, 0);
                 model.addAttribute("id", roomID);
 
                 model.addAttribute("sub", sub);
-
-                // insert the player into the database
-                // statement.executeUpdate("insert into player (id, room_id) values('" + sub +
-                // "', " + roomID + ")");
-
                 return "game";
             }
         }
-        // if the room doesn't exist, return the home page
-        return "index"; // TODO: Create Error Page
+        return "index"; 
     }
 
+    /**
+     * Get the cards of the user and send them to the client. 
+     * 
+     * @param id The id of the room
+     * @param identifyer The user's identifyer
+     * @return The personal cards of the user
+     * @throws IOException
+     */
     @ResponseBody
     @GetMapping(value = "/personalcards", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter personalcards(String id, OAuth2AuthenticationToken identifyer) throws IOException {
@@ -277,8 +353,7 @@ public class homeController {
                         return emitter;
                     }
                 }
-                emitter.send(""); // TODO: Configure these empty strings as error messages to be handled by the
-                                  // client
+                emitter.send(""); 
                 emitter.complete();
                 return emitter;
             }
@@ -288,6 +363,35 @@ public class homeController {
         return emitter;
     }
 
+    /**
+     * This method is used to get the table information for the game. 
+     * It returns a json object with the following format:
+     *   {
+     *       "Winner": "",
+     *       "Players": {
+     *           "104751543348743549419": {
+     *               "Status": "PLAYING",
+     *               "Username": "Noah Virjee",
+     *               "Cards": [
+     *                   "unknown",
+     *                   "5_of_hearts"
+     *               ]
+     *           },
+     *           "Dealer": {
+     *               "Status": "PLAYING",
+     *               "Username": "Dealer",
+     *               "Cards": [
+     *                   "unknown",
+     *                   "2_of_hearts"
+     *               ]
+     *           }
+     *       }
+     *   }
+     * @param id the id of the room
+     * @param identifyer the user's identifyer
+     * @return a json object with the table information
+     * @throws IOException
+     */
     @ResponseBody
     @GetMapping(value = "/getTable", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter getTable(String id, OAuth2AuthenticationToken identifyer) throws IOException {
@@ -349,6 +453,12 @@ public class homeController {
         return emitter;
     }
 
+    /**
+     * Calculate the winner of the game. If there are more than 1 winners, return all. 
+     * 
+     * @param id the id of the room
+     * @return an arraylist of the winners
+     */
     public ArrayList<String> CalculateWinner(String id) {
         // calculate the winner. if there are more than 1 winners, return all of them.
         // If the dealer ties with a player, the dealer wins. The dealers hand is always
@@ -368,8 +478,11 @@ public class homeController {
                 for (int j = 1; j < players.size(); j++) {
                     if (players.get(j).getPoints() > playerScore && players.get(j).getStatus() != Status.BUST) {
                         playerScore = players.get(j).getPoints();
-                        // TODO: if the player has an ace, and is at at or below 11 points, add 11 to
-                        // the score
+                        if (players.get(j).getPoints() <= 11) {
+                            if (players.get(j).findAces().size() > 0) {
+                                playerScore += 10;
+                            }
+                        }
                     }
                 }
                 // if the dealer has the max points, he wins
@@ -384,6 +497,9 @@ public class homeController {
                     if (players.get(j).getPoints() == playerScore) {
                         winners.add(players.get(j).getName());
                     }
+                    if (players.get(j).findAces().size() > 0 && players.get(j).getPoints() == playerScore - 10) {
+                        winners.add(players.get(j).getName());
+                    }
                 }
 
                 return winners;
@@ -393,6 +509,15 @@ public class homeController {
 
     }
 
+
+    /**
+     * This method is used to get the turn of the player.
+     * The client polls for the turn of the player and when it is their turn, either hits or stands. 
+     * 
+     * @param id
+     * @return
+     * @throws IOException
+     */
     @ResponseBody
     @GetMapping(value = "/getTurn", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter getTurn(String id) throws IOException {
@@ -426,6 +551,15 @@ public class homeController {
         return emitter;
     }
 
+    /**
+     * This method is called when a player hits. It adds a card to the players hand. 
+     * If the player has more than 21 points, he busts, and the turn is moved to the next player.
+     * 
+     * @param id the id of the room
+     * @param identifyer the identifyer of the player
+     * @return a success message
+     * @throws IOException 
+     */
     @ResponseBody
     @GetMapping(value = "/hit", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter hit(String id, OAuth2AuthenticationToken identifyer) throws IOException {
@@ -461,6 +595,15 @@ public class homeController {
         return emitter;
     }
 
+    /**
+     * This method is called when a player stands. 
+     * It will change the status of the player to STAND, move the turn to the next player, and send a success message. 
+     * 
+     * @param id the id of the room
+     * @param identifyer the identifyer of the player
+     * @return a success message
+     * @throws IOException 
+     */
     @ResponseBody
     @GetMapping(value = "/stand", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter stand(String id, OAuth2AuthenticationToken identifyer) throws IOException {
