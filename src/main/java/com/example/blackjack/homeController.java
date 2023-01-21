@@ -11,8 +11,6 @@ package com.example.blackjack;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Controller;
@@ -25,12 +23,10 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.example.blackjack.Player.Status;
 
-
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 
 import java.util.ArrayList;
@@ -41,24 +37,9 @@ public class homeController {
 
     static Connection connection = null;
     static Statement statement = null;
-
-    @EventListener(ApplicationReadyEvent.class)
-    public void doSomethingAfterStartup() throws ClassNotFoundException, SQLException {  
-         // create a database connection
-         Class.forName("org.sqlite.JDBC");
-         connection = DriverManager.getConnection("jdbc:sqlite:database.db");
-         statement = connection.createStatement();
-         statement.setQueryTimeout(30);  // set timeout to 30 sec.
-
-         statement.executeUpdate("drop table if exists players");
-         statement.executeUpdate("create table players (id integer primary key autoincrement, sub int not null, won text, game int not null)");
-    }
-
     
-    public void storeData(int id, ArrayList<String> winners){
-        // get the last game id and increment it
-        // find the room with the id in the rooms array
-        // add all the players to the database, if the player is a winner, set won to true
+    public void storeData(int id, ArrayList<String> winners) throws FileNotFoundException{
+    
         ArrayList<Player> players = new ArrayList<>();
         for (int i = 0; i < rooms.size(); i++) {
             if (rooms.get(i).id == id) {
@@ -72,27 +53,26 @@ public class homeController {
             }
         }
 
-        try {
-            ResultSet results = statement.executeQuery("SELECT MAX(game) FROM players");
-            int game = results.getInt("MAX(game)") + 1;
+        String writeString = "";
 
-            for (int i = 0; i < players.size(); i++) {
-                if (players.get(i).getName() == "Dealer") {
-                    continue;
-                }
-                if (winners.contains(players.get(i).getName())) {
-                    statement.executeUpdate("insert into players (sub, won, game) values(" + players.get(i).getName() + ", true, " + game + ")");
-                } else {
-                    statement.executeUpdate("insert into players (sub, won, game) values(" + players.get(i).getName() + ", false, " + game + ")");
-                }
+        PrintWriter out = new PrintWriter("data.txt");
+
+        out.println("Hello Heaven");
+        for (int i = 0; i < players.size(); i++) {
+            if (players.get(i).getName() == "Dealer") {
+                continue;
             }
 
-        } catch (SQLException e) {
-            e.printStackTrace();
+            if (winners.contains(players.get(i).getName())) {
+                writeString = players.get(i).getName() + "," + "true\n";
+            } else {
+                writeString = players.get(i).getName() + "," + "false\n";
+            }
+
+            out.println(writeString);
         }
-
-    }
-
+        out.close();
+    }   
 
 
     private static volatile ArrayList<Room> rooms = new ArrayList<Room>();    ; // number of engines running
