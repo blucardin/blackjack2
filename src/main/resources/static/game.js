@@ -11,9 +11,9 @@ personalCards.onmessage = function(event) {
         parent.innerHTML = "";
 
         for (var i = 0; i < cards.length; i++) {
-            var div = document.createElement("div");
-            div.innerHTML = cards[i];
-            parent.appendChild(div);
+            parent.innerHTML += `
+            <img src="/cards/${cards[i]}.png" alt="${cards[i]}" width="100" height="100">
+            `;
         }
 
         var parent = document.getElementById("started");
@@ -39,10 +39,21 @@ var source = new EventSource("/getTable?id=" + id);
 
                 var players = tableData["Players"];
                 for (var key in players) {
+                    if (key == sub) {
+                        continue;
+                    }
                     var div = document.createElement("div");
                     div.innerHTML = players[key]["Username"] + ": ";
                     for (var i = 0; i < players[key]["Cards"].length; i++) {
-                        div.innerHTML += players[key]["Cards"][i];
+                        if (players[key]["Cards"][i] == "unknown") {
+                            div.innerHTML += `
+                            <img src="/back.png" alt="unknown" width="100" height="100">
+                            `;
+                            continue;
+                        }
+                        div.innerHTML += `
+                        <img src="/cards/${players[key]["Cards"][i]}.png" alt="${players[key]["Cards"][i]}" width="100" height="100">
+                        `;
                         if (i != players[key]["Cards"].length - 1) {
                             div.innerHTML += ", ";
                         }

@@ -266,6 +266,7 @@ public class homeController {
                 for (int j = 1; j < players.size(); j++) {
                     if (players.get(j).getPoints() > playerScore && players.get(j).getStatus() != Status.BUST) {
                         playerScore = players.get(j).getPoints();
+                        // TODO: if the player has an ace, and is at at or below 11 points, add 11 to the score
                     }
                 }
                 // if the dealer has the max points, he wins
