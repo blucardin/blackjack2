@@ -8,7 +8,7 @@
  * Thymeleaf is used to render the html files and pass data to them.
  * 
  * This file was programmed completely by Noah Virjee. 
- * Last modified on 1/21/2023 at 3:00AM EST.
+ * Last modified on 1/21/2023 at 6:00AM EST.
  */
 
 package com.example.blackjack;
@@ -47,10 +47,10 @@ public class homeController {
 
         ArrayList<Player> players = new ArrayList<>();
         for (int i = 0; i < rooms.size(); i++) {
-            if (rooms.get(i).id == id) {
-                players = rooms.get(i).engine.getPlayers();
-                if (rooms.get(i).stored == false) {
-                    rooms.get(i).stored = true;
+            if (rooms.get(i).getId() == id) {
+                players = rooms.get(i).getEngine().getPlayers();
+                if (rooms.get(i).isStored() == false) {
+                    rooms.get(i).setStored(true);
                 } else {
                     return;
                 }
@@ -254,9 +254,9 @@ public class homeController {
         String sub = identifyer.getPrincipal().getAttributes().get("sub").toString();
 
         for (int i = 0; i < rooms.size(); i++) {
-            if (rooms.get(i).id == Integer.parseInt(id) && rooms.get(i).dealersub.equals(sub)) {
-                rooms.get(i).locked = true;
-                rooms.get(i).engine.initializeGame();
+            if (rooms.get(i).getId() == Integer.parseInt(id) && rooms.get(i).getDealersub().equals(sub)) {
+                rooms.get(i).setLocked(true);
+                rooms.get(i).getEngine().initializeGame();
                 model.addAttribute("id", roomID);
                 model.addAttribute("sub", sub);
                 return "start";
@@ -291,14 +291,14 @@ public class homeController {
 
         for (int i = 0; i < rooms.size(); i++) {
 
-            if (rooms.get(i).locked == false && rooms.get(i).id == Integer.parseInt(id)) {
+            if (rooms.get(i).isLocked() == false && rooms.get(i).getId() == Integer.parseInt(id)) {
 
                 String roomID = id;
 
                 String sub = identifyer.getPrincipal().getAttributes().get("sub").toString();
                 String name = identifyer.getPrincipal().getAttributes().get("name").toString();
 
-                rooms.get(i).engine.addPlayer(sub, name, 0); 
+                rooms.get(i).getEngine().addPlayer(sub, name, 0); 
 
                 model.addAttribute("id", roomID);
 
@@ -325,9 +325,9 @@ public class homeController {
 
         for (int i = 0; i < rooms.size(); i++) {
 
-            if (rooms.get(i).id == Integer.parseInt(id)) {
+            if (rooms.get(i).getId() == Integer.parseInt(id)) {
 
-                ArrayList<Player> players = rooms.get(i).engine.getPlayers();
+                ArrayList<Player> players = rooms.get(i).getEngine().getPlayers();
 
                 for (int j = 0; j < players.size(); j++) {
 
@@ -400,14 +400,14 @@ public class homeController {
 
         for (int i = 0; i < rooms.size(); i++) {
 
-            if (rooms.get(i).id == Integer.parseInt(id)) {
+            if (rooms.get(i).getId() == Integer.parseInt(id)) {
 
-                ArrayList<Player> table = rooms.get(i).engine.getPlayers();
+                ArrayList<Player> table = rooms.get(i).getEngine().getPlayers();
                 String payload = "";
                 JSONObject jo = new JSONObject();
                 int t = 1;
 
-                if (rooms.get(i).engine.getPlayers().get(0).getStatus() != Status.PLAYING) {
+                if (rooms.get(i).getEngine().getPlayers().get(0).getStatus() != Status.PLAYING) {
                     JSONArray winner = new JSONArray();
                     ArrayList<String> winners = CalculateWinner(id);
                     for (String win : winners) {
@@ -465,9 +465,9 @@ public class homeController {
         // the first player in the arraylist
         for (int i = 0; i < rooms.size(); i++) {
 
-            if (rooms.get(i).id == Integer.parseInt(id)) {
+            if (rooms.get(i).getId() == Integer.parseInt(id)) {
 
-                ArrayList<Player> players = rooms.get(i).engine.getPlayers();
+                ArrayList<Player> players = rooms.get(i).getEngine().getPlayers();
                 ArrayList<String> winners = new ArrayList<String>();
                 int dealerScore = players.get(0).getPoints();
                 if (dealerScore > 21) {
@@ -525,20 +525,20 @@ public class homeController {
 
         for (int i = 0; i < rooms.size(); i++) {
 
-            if (rooms.get(i).id == Integer.parseInt(id)) {
+            if (rooms.get(i).getId() == Integer.parseInt(id)) {
 
-                if (rooms.get(i).locked == false) {
+                if (rooms.get(i).isLocked() == false) {
                     emitter.send("");
                     emitter.complete();
                     return emitter;
                 }
 
-                int turn = rooms.get(i).turn;
-                ArrayList<Player> players = rooms.get(i).engine.getPlayers();
+                int turn = rooms.get(i).getTurn();
+                ArrayList<Player> players = rooms.get(i).getEngine().getPlayers();
                 String payload = players.get(players.size() - turn - 1).getName();
 
                 if (payload == "Dealer") {
-                    rooms.get(i).engine.dealerTurn();
+                    rooms.get(i).getEngine().dealerTurn();
                 }
 
                 emitter.send(payload);
@@ -568,19 +568,19 @@ public class homeController {
 
         for (int i = 0; i < rooms.size(); i++) {
 
-            if (rooms.get(i).id == Integer.parseInt(id)) {
+            if (rooms.get(i).getId() == Integer.parseInt(id)) {
 
-                int turn = rooms.get(i).turn;
-                ArrayList<Player> players = rooms.get(i).engine.getPlayers();
+                int turn = rooms.get(i).getTurn();
+                ArrayList<Player> players = rooms.get(i).getEngine().getPlayers();
                 Player hittingplayer = players.get(players.size() - turn - 1);
 
                 if (hittingplayer.getName() == sub) {
                     if (hittingplayer.getStatus() == Status.PLAYING) {
 
-                        hittingplayer.hit(rooms.get(i).engine.dealCard());
+                        hittingplayer.hit(rooms.get(i).getEngine().dealCard());
 
                         if (hittingplayer.getStatus() == Status.BUST) {
-                            rooms.get(i).turn++;
+                            rooms.get(i).setTurn(rooms.get(i).getTurn() + 1);
                         }
 
                         emitter.send("Hit Succsessful");
@@ -612,15 +612,15 @@ public class homeController {
 
         for (int i = 0; i < rooms.size(); i++) {
 
-            if (rooms.get(i).id == Integer.parseInt(id)) {
+            if (rooms.get(i).getId() == Integer.parseInt(id)) {
 
-                int turn = rooms.get(i).turn;
-                ArrayList<Player> players = rooms.get(i).engine.getPlayers();
-                Player standingplayer = rooms.get(i).engine.getPlayers().get(players.size() - turn - 1);
+                int turn = rooms.get(i).getTurn();
+                ArrayList<Player> players = rooms.get(i).getEngine().getPlayers();
+                Player standingplayer = rooms.get(i).getEngine().getPlayers().get(players.size() - turn - 1);
                 if (standingplayer.getName() == sub) {
                     if (standingplayer.getStatus() == Status.PLAYING) {
                         standingplayer.stand();
-                        rooms.get(i).turn++;
+                        rooms.get(i).setTurn(rooms.get(i).getTurn() + 1);
                     }
                 }
                 break;
