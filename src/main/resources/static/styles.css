@@ -29,3 +29,10 @@ table
 h1 {
     text-align: center;
   }
+
+
+.rules {
+    margin-left: 20px;
+    margin-right: 10%;
+    font-size: 20px;
+}

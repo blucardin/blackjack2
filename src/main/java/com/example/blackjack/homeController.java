@@ -1,4 +1,3 @@
-// generate header comment
 /*
  * This file is part of Blackjack. It is the controller for the whole application.
  * Spring boot starts the application and then uses the methods defined in this file to handle requests.
