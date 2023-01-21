@@ -54,16 +54,10 @@
     <div class="rules">
         <h3>Please note that Google Cloud Platform does not play well with this site. </h3>
 
-        Google Cloud Platform started several instances of the application. This caused glitches and errors for players,
-        as the memory stored by one computer would not be stored by another. Some players would not be able to join
-        games be because the user would get a different sever than the creator. This was an error that was largely out
-        of the developers control. I messed with the server configuration, however I was never fully able to resolve
-        that issue.
-        Google Cloud Platform also protects it servers by making their storage devices read only for internal programs,
-        this prevents people from maliciously overwriting sensitive data. When my code would try to write text files the
-        operating system would prevent it, causing the history feature to become disabled.
-        <p style="font-weight: bold;"> If you would truly like to experience our web application, I recommend me and
-            Aaron demonstrating it to you locally (running on my own computer without GCP restrictions). </p>
+        Unfortunately, I designed the code to scale vertically, the only way to make the code run faster is to put it on a more powerful computer. When I had the webserver hosted in Google Cloud, they scaled the app horizontally, they started several instances of the application. This caused glitches and errors for players, as the memory stored in one computer would not be stored in another. Some players would not be able to join games because the user would get a different server than the creator. This was an error that was largely out of my control. I messed with the server configuration, however I was never fully able to resolve that issue.
+        	Google Cloud Platform also protects its servers by making their storage devices read only for internal programs, this prevents people from maliciously overwriting sensitive data. When my code would try to write text files the operating system would prevent it, causing the history feature to become disabled.
+        	<p style="font-weight: bold;"> If you would truly like to experience our web application, I recommend Aaron and I demonstrate it to you locally (running on my own computer without GCP restrictions).
+ </p>
         </p>
     </div>
 
